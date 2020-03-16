@@ -10,7 +10,13 @@ MAP_WIDTH = 20
 MAP_HEIGHT = 20
 
 
-def draw_map_and_path(screen, the_map, path):
+def draw_map_and_path(screen, the_map, path=None):
+    if type(the_map) == list:
+        the_map = map.Map((MAP_WIDTH, MAP_HEIGHT), the_map, TILE_SIZE, include_diagonals=True)
+
+    if path is None:
+        path = get_path(the_map)
+
     screen.fill((255, 255, 255))
 
     the_map.draw(screen)
@@ -31,6 +37,8 @@ def get_path(the_map):
 
 
 def calculate_fitness(the_map):
+    if type(the_map) == list:
+        the_map = map.Map((MAP_WIDTH, MAP_HEIGHT), the_map, TILE_SIZE, include_diagonals=True)
     path = get_path(the_map)
     return pathfinding.get_path_length(path)
 
@@ -52,8 +60,10 @@ def main():
     tiles[0] = 'S'
     tiles[-1] = 'G'
 
-    the_map = map.Map((MAP_WIDTH, MAP_HEIGHT), tiles, TILE_SIZE, include_diagonals=True)
-    fitness = calculate_fitness(the_map)
+    fitness = calculate_fitness(tiles)
+
+    print("Current fitness:", fitness)
+    draw_map_and_path(screen, tiles)
 
     while True:
         new_tiles = tiles[:]
@@ -62,19 +72,16 @@ def main():
             new_tiles[tile_index] = '*'
         elif new_tiles[tile_index] == '*':
             new_tiles[tile_index] = ' '
-        new_map = map.Map((MAP_WIDTH, MAP_HEIGHT), new_tiles, TILE_SIZE, include_diagonals=True)
-        new_fitness = calculate_fitness(new_map)
+        new_fitness = calculate_fitness(new_tiles)
 
-        if new_fitness > fitness:
+        if False:
             tiles = new_tiles
-            the_map = new_map
             fitness = new_fitness
 
             print("Current fitness:", fitness)
-            path = get_path(the_map)
-            draw_map_and_path(screen, the_map, path)
+            draw_map_and_path(screen, tiles)
 
-            pygame.event.get()
+        pygame.event.get()
 
 if __name__ == '__main__':
     main()
